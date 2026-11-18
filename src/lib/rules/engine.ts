@@ -10,6 +10,13 @@ export const fmtMod = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
 export const proficiencyBonus = (level: number) => 2 + Math.floor((Math.max(1, Math.min(20, level)) - 1) / 4);
 export const pointBuyCost = (s: Scores) => ABILITIES.reduce((t, a) => t + (POINT_COST[s[a]] ?? Infinity), 0);
 
+export const rollDie = (sides: number) => Math.floor(Math.random() * sides) + 1;
+export const roll4d6DropLowest = () => {
+  const dice = Array.from({ length: 4 }, () => rollDie(6));
+  return { dice, total: dice.slice().sort((a, b) => b - a).slice(0, 3).reduce((a, b) => a + b, 0) };
+};
+export const rollAbilitySet = () => Array.from({ length: 6 }, roll4d6DropLowest);
+
 export function backgroundBonuses(d: CharacterDraft): Partial<Record<Ability, number>> {
   const bg = byId(BACKGROUNDS, d.backgroundId);
   if (!bg) return {};
@@ -39,6 +46,7 @@ export function armorClassUnarmored(d: CharacterDraft, s: Scores) {
 export function validate(d: CharacterDraft): string[] {
   const e: string[] = [];
   if (!d.name.trim()) e.push("Defina o nome do personagem.");
+  if (d.level > 1) e.push("A progressão de classe dos níveis acima de 1 ainda não está cadastrada; finalize inicialmente no nível 1.");
   if (!d.classId) e.push("Escolha uma classe.");
   if (d.classId && d.level >= 3 && !d.subclass) e.push("Escolha uma subclasse (nível 3+).");
   if (!d.speciesId) e.push("Escolha uma espécie.");
@@ -46,6 +54,8 @@ export function validate(d: CharacterDraft): string[] {
   if (d.backgroundId && d.bonusMode === "2-1" && (!d.bonus2 || !d.bonus1 || d.bonus1 === d.bonus2))
     e.push("Distribua os bônus de atributo do antecedente (+2 e +1 em atributos diferentes).");
   if (d.method === "compra" && pointBuyCost(d.base) > POINT_BUY_BUDGET) e.push("Compra de pontos excede 27.");
+  if (d.method === "compra" && ABILITIES.some((a) => d.base[a] < 8 || d.base[a] > 15)) e.push("Na compra de pontos, os atributos devem ficar entre 8 e 15.");
+  if (d.method === "manual" && ABILITIES.some((a) => d.base[a] < 3 || d.base[a] > 18)) e.push("Na geração aleatória, os atributos devem ficar entre 3 e 18.");
   if (d.method === "padrao") {
     const v = [...ABILITIES.map((a) => d.base[a])].sort((a, b) => b - a);
     if (v.join() !== STANDARD_ARRAY.join()) e.push("Use cada valor do conjunto padrão uma vez.");

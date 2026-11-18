@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Dices, BookOpen, Plus, Swords } from "lucide-react";
+import { Dices, BookOpen, Plus, Swords, Sparkles, ScrollText } from "lucide-react";
 import banner from "@/assets/banner.jpg";
 import { CharacterCard } from "@/components/app/CharacterCard";
 import { useCharacters } from "@/components/app/useCharacters";
@@ -44,6 +44,8 @@ function Index() {
           <h2 className="mb-4 text-xl text-foreground">Atalhos</h2>
           <div className="grid gap-4 sm:grid-cols-3">
             {[{ t: "Classes", d: "As 12 classes do Livro do Jogador", i: Swords, to: "/classes" as const },
+              { t: "Espécies", d: "10 origens jogáveis da edição 2024", i: Sparkles, to: "/especies" as const },
+              { t: "Antecedentes", d: "16 origens com talentos e perícias", i: ScrollText, to: "/antecedentes" as const },
               { t: "Criador de personagens", d: "Passo a passo com prévia ao vivo", i: BookOpen, to: "/criar" as const },
               { t: "Meus personagens", d: "Gerencie sua coleção", i: Dices, to: "/personagens" as const }].map((x) => (
               <Link key={x.t} to={x.to} className="frame flex items-start gap-3 p-4 transition hover:frame-gold">

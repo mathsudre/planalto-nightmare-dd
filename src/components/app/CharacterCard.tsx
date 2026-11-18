@@ -10,10 +10,10 @@ export function CharacterCard({ c, onDelete, onDuplicate }: { c: CharacterDraft;
     <div className="frame group p-4 transition hover:frame-gold">
       <div className="flex items-center gap-3">
         <div className="grid size-14 place-items-center rounded-full border border-primary/50 bg-secondary font-display text-xl text-primary">{c.name.charAt(0) || "?"}</div>
-        <div className="min-w-0">
+        <Link to="/personagens/$id" params={{ id: c.id }} className="min-w-0 hover:text-primary">
           <h3 className="truncate text-lg text-foreground">{c.name || "Sem nome"}</h3>
           <p className="truncate text-xs text-muted-foreground">{sp?.name ?? "—"} · {cls?.name ?? "—"}{c.subclass ? ` (${c.subclass})` : ""}</p>
-        </div>
+        </Link>
         <span className="ml-auto rounded border border-primary/40 px-2 py-0.5 font-display text-xs text-primary">Nv {c.level}</span>
       </div>
       <div className="mt-4 flex gap-4 text-sm">
@@ -21,7 +21,8 @@ export function CharacterCard({ c, onDelete, onDuplicate }: { c: CharacterDraft;
         <span className="flex items-center gap-1"><Shield className="size-4 text-emerald" />CA {s.ac}</span>
       </div>
       <div className="mt-4 flex gap-2">
-        <Link to="/criar" search={{ editar: c.id }} className="flex flex-1 items-center justify-center gap-1 rounded-md bg-gold py-1.5 text-sm font-medium text-primary-foreground"><Pencil className="size-3.5" />Editar</Link>
+        <Link to="/personagens/$id" params={{ id: c.id }} className="flex flex-1 items-center justify-center gap-1 rounded-md border border-primary py-1.5 text-sm font-medium text-primary"><Shield className="size-3.5" />Abrir ficha</Link>
+        <Link to="/criar" search={{ editar: c.id }} className="flex items-center justify-center gap-1 rounded-md bg-gold px-3 py-1.5 text-sm font-medium text-primary-foreground"><Pencil className="size-3.5" />Editar</Link>
         {onDuplicate && <button onClick={onDuplicate} aria-label="Duplicar" className="rounded-md border border-border px-2 hover:text-primary"><Copy className="size-4" /></button>}
         {onDelete && <button onClick={onDelete} aria-label="Excluir" className="rounded-md border border-border px-2 hover:text-destructive"><Trash2 className="size-4" /></button>}
       </div>

@@ -9,8 +9,11 @@ export interface ClassDef {
   complexity: "Baixa" | "Média" | "Alta"; summary: string; caster: boolean;
   unarmoredBonus?: Ability; subclasses: string[];
 }
-export interface SpeciesDef { id: string; name: string; size: string; speed: number; summary: string; }
-export interface BackgroundDef { id: string; name: string; abilities: [Ability, Ability, Ability]; }
+export interface SpeciesDef { id: string; name: string; size: string; speed: number; summary: string; details?: string; referencePage?: number; }
+export interface BackgroundDef {
+  id: string; name: string; abilities: [Ability, Ability, Ability]; feat: string;
+  skills: string[]; tool: string; equipment: string; referencePage: number;
+}
 export type Method = "padrao" | "compra" | "manual";
 export type BonusMode = "2-1" | "1-1-1";
 export interface CharacterDraft {

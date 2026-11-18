@@ -3,7 +3,7 @@ import { useState } from "react";
 import { BookOpen, ChevronsLeft, Dices, Home, Moon, Plus, ScrollText, Shield, Swords, Users, UserCircle, Settings, Sparkles, Skull, Map, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Item = { label: string; to?: "/" | "/personagens" | "/criar" | "/classes"; icon: typeof Home };
+type Item = { label: string; to?: "/" | "/personagens" | "/criar" | "/classes" | "/especies" | "/antecedentes" | "/rolador"; icon: typeof Home };
 const groups: { title: string; items: Item[] }[] = [
   { title: "Principal", items: [
     { label: "Visão geral", to: "/", icon: Home },
@@ -13,14 +13,14 @@ const groups: { title: string; items: Item[] }[] = [
   ]},
   { title: "Enciclopédia", items: [
     { label: "Classes", to: "/classes", icon: Swords },
-    { label: "Espécies", icon: Sparkles },
-    { label: "Antecedentes", icon: ScrollText },
+    { label: "Espécies", to: "/especies", icon: Sparkles },
+    { label: "Antecedentes", to: "/antecedentes", icon: ScrollText },
     { label: "Magias", icon: Wand2 },
     { label: "Armaduras", icon: Shield },
     { label: "Criaturas", icon: Skull },
     { label: "Glossário de regras", icon: BookOpen },
   ]},
-  { title: "Ferramentas", items: [{ label: "Rolador de dados", icon: Dices }] },
+  { title: "Ferramentas", items: [{ label: "Rolador de dados", to: "/rolador", icon: Dices }] },
   { title: "Conta", items: [{ label: "Meu perfil", icon: UserCircle }, { label: "Configurações", icon: Settings }] },
 ];
 
@@ -68,6 +68,9 @@ export function MobileNav() {
       <Link to="/personagens" className="hover:text-primary">Personagens</Link>
       <Link to="/criar" className="hover:text-primary">Criar</Link>
       <Link to="/classes" className="hover:text-primary">Classes</Link>
+      <Link to="/especies" className="hover:text-primary">Espécies</Link>
+      <Link to="/antecedentes" className="hover:text-primary">Antecedentes</Link>
+      <Link to="/rolador" className="hover:text-primary">Dados</Link>
     </nav>
   );
 }

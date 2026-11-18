@@ -4,8 +4,11 @@ import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BACKGROUNDS, CLASSES, SPECIES, byId } from "@/lib/rules/data";
 import { ABILITIES, ABILITY_NAMES, type Ability, type CharacterDraft, type Method } from "@/lib/rules/types";
-import { POINT_BUY_BUDGET, STANDARD_ARRAY, fmtMod, modifier, pointBuyCost, summarize, validate } from "@/lib/rules/engine";
+import { POINT_BUY_BUDGET, STANDARD_ARRAY, fmtMod, modifier, pointBuyCost, rollAbilitySet, summarize, validate } from "@/lib/rules/engine";
 import { listCharacters, loadDraft, newDraft, saveCharacter, storeDraft } from "@/lib/characters";
+import classSprite from "@/assets/class-sprite.png";
+import speciesSprite from "@/assets/species-sprite.png";
+import backgroundSprite from "@/assets/background-sprite.png";
 
 export const Route = createFileRoute("/criar")({
   validateSearch: (s: Record<string, unknown>): { editar?: string } => ({ editar: typeof s.editar === "string" ? s.editar : undefined }),
@@ -19,6 +22,20 @@ export const Route = createFileRoute("/criar")({
 });
 
 const STEPS = ["Configuração", "Classe", "Espécie", "Antecedente", "Atributos", "Revisão"];
+const CLASS_ART: Record<string, [number, number]> = {
+  barbaro: [0, 0], bardo: [1, 0], bruxo: [2, 0], clerigo: [3, 0], druida: [0, 1], feiticeiro: [1, 1],
+  guardiao: [2, 1], guerreiro: [3, 1], ladino: [0, 2], mago: [1, 2], monge: [2, 2], paladino: [3, 2],
+};
+const SPECIES_ART: Record<string, [number, number]> = {
+  aasimar: [0, 0], anao: [1, 0], draconato: [2, 0], elfo: [3, 0], gnomo: [4, 0],
+  golias: [0, 1], humano: [1, 1], orc: [2, 1], pequenino: [3, 1], tiferino: [4, 1],
+};
+const BACKGROUND_ART: Record<string, [number, number]> = {
+  acolito: [0, 0], andarilho: [1, 0], artesao: [2, 0], artista: [3, 0],
+  charlatao: [0, 1], criminoso: [1, 1], eremita: [2, 1], escriba: [3, 1],
+  fazendeiro: [0, 2], guarda: [1, 2], guia: [2, 2], marinheiro: [3, 2],
+  mercador: [0, 3], nobre: [1, 3], sabio: [2, 3], soldado: [3, 3],
+};
 const pill = (on: boolean) => cn("frame cursor-pointer p-4 text-left transition", on ? "frame-gold" : "hover:border-primary/40");
 
 function Creator() {
@@ -37,6 +54,10 @@ function Creator() {
   const cls = byId(CLASSES, d.classId); const bg = byId(BACKGROUNDS, d.backgroundId);
 
   const setMethod = (m: Method) => up({ method: m, base: m === "compra" ? { FOR: 8, DES: 8, CON: 8, INT: 8, SAB: 8, CAR: 8 } : { FOR: 15, DES: 14, CON: 13, INT: 12, SAB: 10, CAR: 8 } });
+  const rollAttributes = () => {
+    const rolls = rollAbilitySet();
+    up({ method: "manual", base: Object.fromEntries(ABILITIES.map((a, i) => [a, rolls[i].total])) as CharacterDraft["base"] });
+  };
   const swapStd = (a: Ability, v: number) => {
     const other = ABILITIES.find((x) => d.base[x] === v)!;
     up({ base: { ...d.base, [other]: d.base[a], [a]: v } });
@@ -69,6 +90,7 @@ function Creator() {
                     <button key={m} onClick={() => setMethod(m)} className={cn("rounded-md border px-3 py-1.5", d.method === m ? "border-primary text-primary" : "border-border")}>{l}</button>
                   ))}
                 </div>
+                {d.method === "manual" && <button onClick={rollAttributes} className="mt-3 rounded-md border border-primary px-3 py-1.5 text-xs text-primary">Rolar 4d6, descartando o menor</button>}
               </div>
             </div>
           )}
@@ -76,10 +98,11 @@ function Creator() {
             <>
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {CLASSES.map((c) => (
-                  <button key={c.id} onClick={() => up({ classId: c.id, subclass: c.id === d.classId ? d.subclass : undefined })} className={pill(d.classId === c.id)}>
-                    <div className="flex justify-between"><span className="font-display text-primary">{c.name}</span><span className="text-xs text-muted-foreground">d{c.hitDie}</span></div>
-                    <p className="mt-1 text-xs text-muted-foreground">{c.summary}</p>
-                    <p className="mt-2 text-[11px] text-foreground/80">Primário: {c.primary.map((a) => ABILITY_NAMES[a]).join("/")} · {c.complexity}</p>
+                  <button key={c.id} onClick={() => up({ classId: c.id, subclass: c.id === d.classId ? d.subclass : undefined })} className={cn(pill(d.classId === c.id), "flex gap-4") }>
+                    <div role="img" aria-label={`Ilustração da classe ${c.name}`} className="relative h-40 w-28 shrink-0 overflow-hidden rounded-md border border-border bg-secondary bg-no-repeat" style={{ backgroundImage: `url(${classSprite})`, backgroundSize: "400% 300%", backgroundPosition: `${((CLASS_ART[c.id]?.[0] ?? 0) / 3) * 100}% ${((CLASS_ART[c.id]?.[1] ?? 0) / 2) * 100}%` }} />
+                    <div className="min-w-0 flex-1"><div className="flex justify-between"><span className="font-display text-primary">{c.name}</span><span className="text-xs text-muted-foreground">d{c.hitDie}</span></div>
+                    <p className="mt-2 text-xs text-muted-foreground">{c.summary}</p>
+                    <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[11px] text-foreground/80"><p><span className="text-muted-foreground">Primário:</span> {c.primary.map((a) => ABILITY_NAMES[a]).join("/")}</p><p><span className="text-muted-foreground">Complexidade:</span> {c.complexity}</p><p><span className="text-muted-foreground">Salvaguardas:</span> {c.saves.map((a) => ABILITY_NAMES[a]).join(" e ")}</p><p><span className="text-muted-foreground">Conjuração:</span> {c.caster ? "Sim" : "Não"}</p><p><span className="text-muted-foreground">Subclasses:</span> {c.subclasses.length} no nível 3</p>{c.unarmoredBonus && <p><span className="text-muted-foreground">CA sem armadura:</span> +mod. {ABILITY_NAMES[c.unarmoredBonus]}</p>}</div></div>
                   </button>
                 ))}
               </div>
@@ -98,21 +121,23 @@ function Creator() {
           {step === 2 && (
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {SPECIES.map((s) => (
-                <button key={s.id} onClick={() => up({ speciesId: s.id })} className={pill(d.speciesId === s.id)}>
-                  <span className="font-display text-primary">{s.name}</span>
-                  <p className="mt-1 text-xs text-muted-foreground">{s.summary}</p>
-                  <p className="mt-2 text-[11px] text-foreground/80">{s.size} · Desl. {s.speed} m</p>
+                <button key={s.id} onClick={() => up({ speciesId: s.id })} className={cn(pill(d.speciesId === s.id), "flex gap-4")}>
+                  <div role="img" aria-label={`Ilustração da espécie ${s.name}`} className="relative h-40 w-28 shrink-0 overflow-hidden rounded-md border border-border bg-secondary bg-no-repeat" style={{ backgroundImage: `url(${speciesSprite})`, backgroundSize: "500% 200%", backgroundPosition: `${((SPECIES_ART[s.id]?.[0] ?? 0) / 4) * 100}% ${((SPECIES_ART[s.id]?.[1] ?? 0)) * 100}%` }} />
+                  <div className="min-w-0 flex-1 text-left"><div className="flex justify-between"><span className="font-display text-primary">{s.name}</span><span className="text-xs text-muted-foreground">{s.speed} m</span></div>
+                  <p className="mt-2 text-xs text-muted-foreground">{s.summary}</p>
+                  <p className="mt-3 text-[11px] text-foreground/80">{s.size} · Traços da espécie 2024</p></div>
                 </button>
               ))}
             </div>
           )}
           {step === 3 && (
             <>
-              <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {BACKGROUNDS.map((b) => (
-                  <button key={b.id} onClick={() => up({ backgroundId: b.id, bonus2: undefined, bonus1: undefined })} className={pill(d.backgroundId === b.id)}>
-                    <span className="font-display text-sm text-primary">{b.name}</span>
-                    <p className="mt-1 text-[11px] text-muted-foreground">{b.abilities.join(" · ")}</p>
+                  <button key={b.id} onClick={() => up({ backgroundId: b.id, bonus2: undefined, bonus1: undefined })} className={cn(pill(d.backgroundId === b.id), "flex gap-4")}>
+                    <div role="img" aria-label={`Ilustração do antecedente ${b.name}`} className="relative h-40 w-28 shrink-0 overflow-hidden rounded-md border border-border bg-secondary bg-no-repeat" style={{ backgroundImage: `url(${backgroundSprite})`, backgroundSize: "400% 400%", backgroundPosition: `${((BACKGROUND_ART[b.id]?.[0] ?? 0) / 3) * 100}% ${((BACKGROUND_ART[b.id]?.[1] ?? 0) / 3) * 100}%` }} />
+                    <div className="min-w-0 flex-1 text-left"><span className="font-display text-sm text-primary">{b.name}</span>
+                    <p className="mt-2 text-[11px] text-muted-foreground">{b.abilities.map((a) => ABILITY_NAMES[a]).join(" · ")}</p><p className="mt-3 text-[11px] text-foreground/80">Talento: {b.feat}</p><p className="mt-2 text-[10px] text-muted-foreground">{b.skills.join(" · ")}</p></div>
                   </button>
                 ))}
               </div>
@@ -142,7 +167,7 @@ function Creator() {
                       <select value={d.base[a]} onChange={(e) => swapStd(a, +e.target.value)} className="mt-1 rounded bg-background px-2 py-1">{STANDARD_ARRAY.map((v) => <option key={v}>{v}</option>)}</select>
                     ) : (
                       <input type="number" min={d.method === "compra" ? 8 : 3} max={d.method === "compra" ? 15 : 18} value={d.base[a]}
-                        onChange={(e) => up({ base: { ...d.base, [a]: +e.target.value } })} className="mt-1 w-16 rounded bg-background px-2 py-1 text-center" />
+                        onChange={(e) => up({ base: { ...d.base, [a]: Math.max(3, Math.min(d.method === "compra" ? 15 : 18, +e.target.value || 0)) } })} className="mt-1 w-16 rounded bg-background px-2 py-1 text-center" />
                     )}
                     <p className="mt-1 text-xs text-muted-foreground">final {sum.scores[a]} ({fmtMod(modifier(sum.scores[a]))})</p>
                   </div>

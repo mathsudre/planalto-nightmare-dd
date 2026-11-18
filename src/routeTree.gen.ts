@@ -10,13 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AntecedentesRouteImport } from './routes/antecedentes'
 import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as CriarRouteImport } from './routes/criar'
+import { Route as EspeciesRouteImport } from './routes/especies'
 import { Route as PersonagensRouteImport } from './routes/personagens'
+import { Route as RoladorRouteImport } from './routes/rolador'
+import { Route as PersonagensIdRouteImport } from './routes/personagens/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AntecedentesRoute = AntecedentesRouteImport.update({
+  id: '/antecedentes',
+  path: '/antecedentes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClassesRoute = ClassesRouteImport.update({
@@ -29,44 +38,99 @@ const CriarRoute = CriarRouteImport.update({
   path: '/criar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EspeciesRoute = EspeciesRouteImport.update({
+  id: '/especies',
+  path: '/especies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PersonagensRoute = PersonagensRouteImport.update({
   id: '/personagens',
   path: '/personagens',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RoladorRoute = RoladorRouteImport.update({
+  id: '/rolador',
+  path: '/rolador',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PersonagensIdRoute = PersonagensIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => PersonagensRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/antecedentes': typeof AntecedentesRoute
   '/classes': typeof ClassesRoute
   '/criar': typeof CriarRoute
-  '/personagens': typeof PersonagensRoute
+  '/especies': typeof EspeciesRoute
+  '/personagens': typeof PersonagensRouteWithChildren
+  '/rolador': typeof RoladorRoute
+  '/personagens/$id': typeof PersonagensIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/antecedentes': typeof AntecedentesRoute
   '/classes': typeof ClassesRoute
   '/criar': typeof CriarRoute
-  '/personagens': typeof PersonagensRoute
+  '/especies': typeof EspeciesRoute
+  '/personagens': typeof PersonagensRouteWithChildren
+  '/rolador': typeof RoladorRoute
+  '/personagens/$id': typeof PersonagensIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/antecedentes': typeof AntecedentesRoute
   '/classes': typeof ClassesRoute
   '/criar': typeof CriarRoute
-  '/personagens': typeof PersonagensRoute
+  '/especies': typeof EspeciesRoute
+  '/personagens': typeof PersonagensRouteWithChildren
+  '/rolador': typeof RoladorRoute
+  '/personagens/$id': typeof PersonagensIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/classes' | '/criar' | '/personagens'
+  fullPaths:
+    | '/'
+    | '/antecedentes'
+    | '/classes'
+    | '/criar'
+    | '/especies'
+    | '/personagens'
+    | '/rolador'
+    | '/personagens/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/classes' | '/criar' | '/personagens'
-  id: '__root__' | '/' | '/classes' | '/criar' | '/personagens'
+  to:
+    | '/'
+    | '/antecedentes'
+    | '/classes'
+    | '/criar'
+    | '/especies'
+    | '/personagens'
+    | '/rolador'
+    | '/personagens/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/antecedentes'
+    | '/classes'
+    | '/criar'
+    | '/especies'
+    | '/personagens'
+    | '/rolador'
+    | '/personagens/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AntecedentesRoute: typeof AntecedentesRoute
   ClassesRoute: typeof ClassesRoute
   CriarRoute: typeof CriarRoute
-  PersonagensRoute: typeof PersonagensRoute
+  EspeciesRoute: typeof EspeciesRoute
+  PersonagensRoute: typeof PersonagensRouteWithChildren
+  RoladorRoute: typeof RoladorRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -76,6 +140,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/antecedentes': {
+      id: '/antecedentes'
+      path: '/antecedentes'
+      fullPath: '/antecedentes'
+      preLoaderRoute: typeof AntecedentesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/classes': {
@@ -92,6 +163,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CriarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/especies': {
+      id: '/especies'
+      path: '/especies'
+      fullPath: '/especies'
+      preLoaderRoute: typeof EspeciesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/personagens': {
       id: '/personagens'
       path: '/personagens'
@@ -99,14 +177,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonagensRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rolador': {
+      id: '/rolador'
+      path: '/rolador'
+      fullPath: '/rolador'
+      preLoaderRoute: typeof RoladorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/personagens/$id': {
+      id: '/personagens/$id'
+      path: '/$id'
+      fullPath: '/personagens/$id'
+      preLoaderRoute: typeof PersonagensIdRouteImport
+      parentRoute: typeof PersonagensRoute
+    }
   }
 }
 
+interface PersonagensRouteChildren {
+  PersonagensIdRoute: typeof PersonagensIdRoute
+}
+
+const PersonagensRouteChildren: PersonagensRouteChildren = {
+  PersonagensIdRoute: PersonagensIdRoute,
+}
+
+const PersonagensRouteWithChildren = PersonagensRoute._addFileChildren(
+  PersonagensRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AntecedentesRoute: AntecedentesRoute,
   ClassesRoute: ClassesRoute,
   CriarRoute: CriarRoute,
-  PersonagensRoute: PersonagensRoute,
+  EspeciesRoute: EspeciesRoute,
+  PersonagensRoute: PersonagensRouteWithChildren,
+  RoladorRoute: RoladorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
