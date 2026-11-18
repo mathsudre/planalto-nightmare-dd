@@ -18,7 +18,7 @@ export type Method = "padrao" | "compra" | "manual";
 export type BonusMode = "2-1" | "1-1-1";
 export interface CharacterDraft {
   id: string; name: string; level: number; method: Method;
-  classId?: string; subclass?: string; speciesId?: string; backgroundId?: string;
-  bonusMode: BonusMode; bonus2?: Ability; bonus1?: Ability;
+  classId?: string | undefined; subclass?: string | undefined; speciesId?: string | undefined; backgroundId?: string | undefined;
+  bonusMode: BonusMode; bonus2?: Ability | undefined; bonus1?: Ability | undefined;
   base: Scores; updatedAt: number;
 }
