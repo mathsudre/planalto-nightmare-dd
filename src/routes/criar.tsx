@@ -12,7 +12,7 @@ import backgroundSprite from "@/assets/background-sprite.png";
 import { SPELLS } from "@/lib/rules/spells";
 
 export const Route = createFileRoute("/criar")({
-  validateSearch: (s: Record<string, unknown>): { editar?: string } => ({ editar: typeof s.editar === "string" ? s.editar : undefined }),
+  validateSearch: (s: Record<string, unknown>): { editar?: string | undefined } => ({ editar: typeof s["editar"] === "string" ? s["editar"] : undefined }),
   head: () => ({ meta: [
     { title: "Criar personagem — Planalto Nightmare" },
     { name: "description", content: "Assistente de criação de personagens com regras de D&D 2024." },
