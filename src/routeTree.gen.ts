@@ -14,6 +14,7 @@ import { Route as AntecedentesRouteImport } from './routes/antecedentes'
 import { Route as ClassesRouteImport } from './routes/classes'
 import { Route as CriarRouteImport } from './routes/criar'
 import { Route as EspeciesRouteImport } from './routes/especies'
+import { Route as MagiasRouteImport } from './routes/magias'
 import { Route as PersonagensRouteImport } from './routes/personagens'
 import { Route as RoladorRouteImport } from './routes/rolador'
 import { Route as PersonagensIdRouteImport } from './routes/personagens/$id'
@@ -43,6 +44,11 @@ const EspeciesRoute = EspeciesRouteImport.update({
   path: '/especies',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MagiasRoute = MagiasRouteImport.update({
+  id: '/magias',
+  path: '/magias',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PersonagensRoute = PersonagensRouteImport.update({
   id: '/personagens',
   path: '/personagens',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/classes': typeof ClassesRoute
   '/criar': typeof CriarRoute
   '/especies': typeof EspeciesRoute
+  '/magias': typeof MagiasRoute
   '/personagens': typeof PersonagensRouteWithChildren
   '/rolador': typeof RoladorRoute
   '/personagens/$id': typeof PersonagensIdRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/classes': typeof ClassesRoute
   '/criar': typeof CriarRoute
   '/especies': typeof EspeciesRoute
+  '/magias': typeof MagiasRoute
   '/personagens': typeof PersonagensRouteWithChildren
   '/rolador': typeof RoladorRoute
   '/personagens/$id': typeof PersonagensIdRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/classes': typeof ClassesRoute
   '/criar': typeof CriarRoute
   '/especies': typeof EspeciesRoute
+  '/magias': typeof MagiasRoute
   '/personagens': typeof PersonagensRouteWithChildren
   '/rolador': typeof RoladorRoute
   '/personagens/$id': typeof PersonagensIdRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/criar'
     | '/especies'
+    | '/magias'
     | '/personagens'
     | '/rolador'
     | '/personagens/$id'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/criar'
     | '/especies'
+    | '/magias'
     | '/personagens'
     | '/rolador'
     | '/personagens/$id'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/classes'
     | '/criar'
     | '/especies'
+    | '/magias'
     | '/personagens'
     | '/rolador'
     | '/personagens/$id'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   ClassesRoute: typeof ClassesRoute
   CriarRoute: typeof CriarRoute
   EspeciesRoute: typeof EspeciesRoute
+  MagiasRoute: typeof MagiasRoute
   PersonagensRoute: typeof PersonagensRouteWithChildren
   RoladorRoute: typeof RoladorRoute
 }
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/especies'
       fullPath: '/especies'
       preLoaderRoute: typeof EspeciesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/magias': {
+      id: '/magias'
+      path: '/magias'
+      fullPath: '/magias'
+      preLoaderRoute: typeof MagiasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/personagens': {
@@ -212,6 +232,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClassesRoute: ClassesRoute,
   CriarRoute: CriarRoute,
   EspeciesRoute: EspeciesRoute,
+  MagiasRoute: MagiasRoute,
   PersonagensRoute: PersonagensRouteWithChildren,
   RoladorRoute: RoladorRoute,
 }

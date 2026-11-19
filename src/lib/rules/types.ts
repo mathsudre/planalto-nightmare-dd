@@ -21,4 +21,13 @@ export interface CharacterDraft {
   classId?: string; subclass?: string; speciesId?: string; backgroundId?: string;
   bonusMode: BonusMode; bonus2?: Ability; bonus1?: Ability;
   base: Scores; updatedAt: number;
+  nickname: string; age: string; gender: string; height: string; weight: string;
+  appearance: string; personality: string; history: string; alignment: string; deity: string;
+  goals: string; allies: string; enemies: string; fears: string; notes: string;
+  xp: number; currentHp: number; temporaryHp: number; heroInspiration: boolean;
+  deathSaveSuccesses: number; deathSaveFailures: number;
+  languages: string[]; skills: string[]; proficiencies: string[];
+  classFeatures: string; speciesTraits: string; feats: string;
+  inventory: string; attacks: string; currencies: { cp: number; pp: number; pe: number; po: number; pl: number };
+  spells: string; cantrips: string; spellAbility: Ability | ""; spellSlots: string;
 }

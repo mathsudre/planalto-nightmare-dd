@@ -3,7 +3,7 @@ import { useState } from "react";
 import { BookOpen, ChevronsLeft, Dices, Home, Moon, Plus, ScrollText, Shield, Swords, Users, UserCircle, Settings, Sparkles, Skull, Map, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Item = { label: string; to?: "/" | "/personagens" | "/criar" | "/classes" | "/especies" | "/antecedentes" | "/rolador"; icon: typeof Home };
+type Item = { label: string; to?: "/" | "/personagens" | "/criar" | "/classes" | "/especies" | "/antecedentes" | "/magias" | "/rolador"; icon: typeof Home };
 const groups: { title: string; items: Item[] }[] = [
   { title: "Principal", items: [
     { label: "Visão geral", to: "/", icon: Home },
@@ -15,7 +15,7 @@ const groups: { title: string; items: Item[] }[] = [
     { label: "Classes", to: "/classes", icon: Swords },
     { label: "Espécies", to: "/especies", icon: Sparkles },
     { label: "Antecedentes", to: "/antecedentes", icon: ScrollText },
-    { label: "Magias", icon: Wand2 },
+    { label: "Magias", to: "/magias", icon: Wand2 },
     { label: "Armaduras", icon: Shield },
     { label: "Criaturas", icon: Skull },
     { label: "Glossário de regras", icon: BookOpen },

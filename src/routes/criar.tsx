@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BACKGROUNDS, CLASSES, SPECIES, byId } from "@/lib/rules/data";
 import { ABILITIES, ABILITY_NAMES, type Ability, type CharacterDraft, type Method } from "@/lib/rules/types";
@@ -9,6 +9,7 @@ import { listCharacters, loadDraft, newDraft, saveCharacter, storeDraft } from "
 import classSprite from "@/assets/class-sprite.png";
 import speciesSprite from "@/assets/species-sprite.png";
 import backgroundSprite from "@/assets/background-sprite.png";
+import { SPELLS } from "@/lib/rules/spells";
 
 export const Route = createFileRoute("/criar")({
   validateSearch: (s: Record<string, unknown>): { editar?: string } => ({ editar: typeof s.editar === "string" ? s.editar : undefined }),
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/criar")({
   component: Creator,
 });
 
-const STEPS = ["Configuração", "Classe", "Espécie", "Antecedente", "Atributos", "Revisão"];
+const STEPS = ["Configuração", "Classe", "Espécie", "Antecedente", "Atributos", "Ficha", "Revisão"];
 const CLASS_ART: Record<string, [number, number]> = {
   barbaro: [0, 0], bardo: [1, 0], bruxo: [2, 0], clerigo: [3, 0], druida: [0, 1], feiticeiro: [1, 1],
   guardiao: [2, 1], guerreiro: [3, 1], ladino: [0, 2], mago: [1, 2], monge: [2, 2], paladino: [3, 2],
@@ -43,6 +44,8 @@ function Creator() {
   const navigate = useNavigate();
   const [d, setD] = useState<CharacterDraft | null>(null);
   const [step, setStep] = useState(0);
+  const [spellQuery, setSpellQuery] = useState("");
+  const [spellLevel, setSpellLevel] = useState("Todos");
   useEffect(() => {
     setD((editar && listCharacters().find((c) => c.id === editar)) || loadDraft() || newDraft());
   }, [editar]);
@@ -52,6 +55,15 @@ function Creator() {
   const errors = validate(d);
   const sum = summarize(d);
   const cls = byId(CLASSES, d.classId); const bg = byId(BACKGROUNDS, d.backgroundId);
+  const eligibleSpells = SPELLS.filter((spell) => !cls || spell.classes.includes(cls.name));
+  const visibleSpells = eligibleSpells.filter((spell) => `${spell.name} ${spell.summary}`.toLocaleLowerCase("pt-BR").includes(spellQuery.toLocaleLowerCase("pt-BR")) && (spellLevel === "Todos" || String(spell.level) === spellLevel));
+  const selectedSpells = (d.spells ?? "").split("\n").map((value) => value.trim()).filter(Boolean);
+  const selectedCantrips = (d.cantrips ?? "").split("\n").map((value) => value.trim()).filter(Boolean);
+  const toggleSpell = (name: string, cantrip: boolean) => {
+    const current = cantrip ? selectedCantrips : selectedSpells;
+    const next = current.includes(name) ? current.filter((value) => value !== name) : [...current, name];
+    up(cantrip ? { cantrips: next.join("\n") } : { spells: next.join("\n") });
+  };
 
   const setMethod = (m: Method) => up({ method: m, base: m === "compra" ? { FOR: 8, DES: 8, CON: 8, INT: 8, SAB: 8, CAR: 8 } : { FOR: 15, DES: 14, CON: 13, INT: 12, SAB: 10, CAR: 8 } });
   const rollAttributes = () => {
@@ -176,6 +188,13 @@ function Creator() {
             </div>
           )}
           {step === 5 && (
+            <div className="space-y-4">
+              <div className="frame space-y-4 p-5"><h2 className="text-xl text-primary">Identidade e personalidade</h2><div className="grid gap-3 sm:grid-cols-2"><label className="text-sm">Apelido<input value={d.nickname ?? ""} onChange={(e) => up({ nickname: e.target.value })} className="mt-1 w-full rounded border bg-background px-3 py-2" /></label><label className="text-sm">Idade<input value={d.age ?? ""} onChange={(e) => up({ age: e.target.value })} className="mt-1 w-full rounded border bg-background px-3 py-2" /></label><label className="text-sm">Gênero<input value={d.gender ?? ""} onChange={(e) => up({ gender: e.target.value })} className="mt-1 w-full rounded border bg-background px-3 py-2" /></label><label className="text-sm">Altura / peso<input value={`${d.height ?? ""}${d.height || d.weight ? " / " : ""}${d.weight ?? ""}`} onChange={(e) => { const [height, weight = ""] = e.target.value.split("/"); up({ height: height.trim(), weight: weight.trim() }); }} placeholder="Ex.: 1,80 m / 75 kg" className="mt-1 w-full rounded border bg-background px-3 py-2" /></label></div><label className="block text-sm">Aparência<textarea value={d.appearance ?? ""} onChange={(e) => up({ appearance: e.target.value })} className="mt-1 min-h-20 w-full rounded border bg-background px-3 py-2" /></label><label className="block text-sm">Personalidade e história<textarea value={`${d.personality ?? ""}${d.personality || d.history ? "\n\n" : ""}${d.history ?? ""}`} onChange={(e) => up({ personality: e.target.value })} placeholder="Descreva personalidade e história" className="mt-1 min-h-28 w-full rounded border bg-background px-3 py-2" /></label></div>
+              <div className="frame space-y-4 p-5"><h2 className="text-xl text-primary">Ficha de jogo</h2><div className="grid gap-3 sm:grid-cols-3"><label className="text-sm">XP<input type="number" min="0" value={d.xp ?? 0} onChange={(e) => up({ xp: Number(e.target.value) || 0 })} className="mt-1 w-full rounded border bg-background px-3 py-2" /></label><label className="text-sm">PV atuais<input type="number" min="0" value={d.currentHp ?? sum.hp} onChange={(e) => up({ currentHp: Number(e.target.value) || 0 })} className="mt-1 w-full rounded border bg-background px-3 py-2" /></label><label className="text-sm">PV temporários<input type="number" min="0" value={d.temporaryHp ?? 0} onChange={(e) => up({ temporaryHp: Number(e.target.value) || 0 })} className="mt-1 w-full rounded border bg-background px-3 py-2" /></label></div><label className="block text-sm">Idiomas<input value={(d.languages ?? ["Comum"]).join(", ")} onChange={(e) => up({ languages: e.target.value.split(",").map((v) => v.trim()).filter(Boolean) })} className="mt-1 w-full rounded border bg-background px-3 py-2" /></label><label className="block text-sm">Equipamento e inventário<textarea value={d.inventory ?? ""} onChange={(e) => up({ inventory: e.target.value })} className="mt-1 min-h-20 w-full rounded border bg-background px-3 py-2" /></label><label className="block text-sm">Características, talentos e ataques<textarea value={[d.classFeatures, d.speciesTraits, d.feats, d.attacks].filter(Boolean).join("\n\n")} onChange={(e) => up({ classFeatures: e.target.value })} className="mt-1 min-h-24 w-full rounded border bg-background px-3 py-2" /></label></div>
+              <div className="frame space-y-3 p-5"><div><h2 className="text-xl text-primary">Magias e truques</h2><p className="mt-1 text-xs text-muted-foreground">{cls?.caster ? `Registros elegíveis para ${cls.name}. Selecione para salvar na ficha.` : "A classe selecionada não possui conjuração cadastrada."}</p></div>{cls?.caster && <><div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end"><label className="text-xs text-muted-foreground"><span className="mb-1 block">Buscar magia</span><div className="relative"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2" /><input value={spellQuery} onChange={(e) => setSpellQuery(e.target.value)} placeholder="Nome ou descrição..." className="w-full rounded border bg-background py-2 pl-9 pr-3" /></div></label><label className="text-xs text-muted-foreground"><span className="mb-1 block">Círculo</span><select value={spellLevel} onChange={(e) => setSpellLevel(e.target.value)} className="rounded border bg-background px-3 py-2 text-sm"><option>Todos</option>{[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => <option key={n} value={n}>{n === 0 ? "Truques" : `${n}º círculo`}</option>)}</select></label></div><p className="text-xs text-muted-foreground">{visibleSpells.length} registros encontrados</p><div className="grid gap-3 md:grid-cols-2">{visibleSpells.map((spell) => { const cantrip = spell.level === 0; const checked = (cantrip ? selectedCantrips : selectedSpells).includes(spell.name); return <label key={spell.id} className={cn("cursor-pointer rounded border p-3", checked ? "border-primary bg-primary/10" : "border-border")}><div className="flex gap-2"><input type="checkbox" checked={checked} onChange={() => toggleSpell(spell.name, cantrip)} className="mt-1 accent-primary" /><span><span className="text-sm text-primary">{spell.name}</span><span className="ml-2 text-[10px] text-muted-foreground">{cantrip ? "Truque" : `${spell.level}º círculo`}</span><span className="mt-1 block text-xs text-muted-foreground">{spell.summary}</span></span></div></label>; })}</div></>}{cls?.caster && <p className="text-xs text-muted-foreground">Selecionadas: {selectedCantrips.length} truque(s) e {selectedSpells.length} magia(s).</p>}</div>
+            </div>
+          )}
+          {step === 6 && (
             <div className="frame space-y-3 p-5">
               {errors.length ? (
                 <ul className="space-y-1 text-sm text-destructive">{errors.map((e) => <li key={e}>• {e}</li>)}</ul>

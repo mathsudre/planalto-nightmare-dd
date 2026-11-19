@@ -12,4 +12,8 @@ export const storeDraft = (d: CharacterDraft | null) => d ? localStorage.setItem
 export const newDraft = (): CharacterDraft => ({
   id: crypto.randomUUID(), name: "", level: 1, method: "padrao", bonusMode: "2-1",
   base: { FOR: 15, DES: 14, CON: 13, INT: 12, SAB: 10, CAR: 8 }, updatedAt: Date.now(),
+  nickname: "", age: "", gender: "", height: "", weight: "", appearance: "", personality: "", history: "", alignment: "", deity: "",
+  goals: "", allies: "", enemies: "", fears: "", notes: "", xp: 0, currentHp: 0, temporaryHp: 0, heroInspiration: false,
+  deathSaveSuccesses: 0, deathSaveFailures: 0, languages: ["Comum"], skills: [], proficiencies: [], classFeatures: "", speciesTraits: "", feats: "",
+  inventory: "", attacks: "", currencies: { cp: 0, pp: 0, pe: 0, po: 0, pl: 0 }, spells: "", cantrips: "", spellAbility: "", spellSlots: "",
 });
