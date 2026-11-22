@@ -1,13 +1,14 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Heart, Shield, Trash2, Copy, Pencil } from "lucide-react";
 import { CLASSES, SPECIES, byId } from "@/lib/rules/data";
 import { summarize } from "@/lib/rules/engine";
 import type { CharacterDraft } from "@/lib/rules/types";
 
 export function CharacterCard({ c, onDelete, onDuplicate }: { c: CharacterDraft; onDelete?: () => void; onDuplicate?: () => void }) {
+  const navigate = useNavigate();
   const cls = byId(CLASSES, c.classId); const sp = byId(SPECIES, c.speciesId); const s = summarize(c);
   return (
-    <div className="frame group p-4 transition hover:frame-gold">
+    <div className="frame group cursor-pointer p-4 transition hover:frame-gold" role="link" tabIndex={0} onClick={() => navigate({ to: "/personagens/$id", params: { id: c.id } })} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); navigate({ to: "/personagens/$id", params: { id: c.id } }); } }}>
       <div className="flex items-center gap-3">
         <div className="grid size-14 place-items-center rounded-full border border-primary/50 bg-secondary font-display text-xl text-primary">{c.name.charAt(0) || "?"}</div>
         <Link to="/personagens/$id" params={{ id: c.id }} className="min-w-0 hover:text-primary">
@@ -23,8 +24,8 @@ export function CharacterCard({ c, onDelete, onDuplicate }: { c: CharacterDraft;
       <div className="mt-4 flex gap-2">
         <Link to="/personagens/$id" params={{ id: c.id }} className="flex flex-1 items-center justify-center gap-1 rounded-md border border-primary py-1.5 text-sm font-medium text-primary"><Shield className="size-3.5" />Abrir ficha</Link>
         <Link to="/criar" search={{ editar: c.id }} className="flex items-center justify-center gap-1 rounded-md bg-gold px-3 py-1.5 text-sm font-medium text-primary-foreground"><Pencil className="size-3.5" />Editar</Link>
-        {onDuplicate && <button onClick={onDuplicate} aria-label="Duplicar" className="rounded-md border border-border px-2 hover:text-primary"><Copy className="size-4" /></button>}
-        {onDelete && <button onClick={onDelete} aria-label="Excluir" className="rounded-md border border-border px-2 hover:text-destructive"><Trash2 className="size-4" /></button>}
+        {onDuplicate && <button onClick={(event) => { event.stopPropagation(); onDuplicate(); }} aria-label="Duplicar" className="rounded-md border border-border px-2 hover:text-primary"><Copy className="size-4" /></button>}
+        {onDelete && <button onClick={(event) => { event.stopPropagation(); onDelete(); }} aria-label="Excluir" className="rounded-md border border-border px-2 hover:text-destructive"><Trash2 className="size-4" /></button>}
       </div>
     </div>
   );
